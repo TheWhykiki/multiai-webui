@@ -1,0 +1,13 @@
+{
+  "apps": [
+    {
+      "id": "joyful-captioner",
+      "name": "Joyful Image Captioner",
+      "path": "/Users/whykiki/path/to/joyful-captioner",
+      "venv": "/Users/whykiki/path/to/joyful-captioner/venv",
+      "start_command": "python app.py",
+      "port": 7860,
+      "icon": "faFileImage"
+    }
+  ]
+}
