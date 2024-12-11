@@ -2,6 +2,7 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 import os
 from .routes.api_routes import api_routes
+from .routes.mochi_routes import mochi_routes
 from dotenv import load_dotenv
 
 def create_app():
@@ -40,6 +41,7 @@ def create_app():
             return response
         
     app.register_blueprint(api_routes, url_prefix='/api')
+    app.register_blueprint(mochi_routes, url_prefix='/api/mochi')
     
     # Print environment variables for debugging
     print("Environment variables loaded:")
