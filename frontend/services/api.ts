@@ -91,51 +91,47 @@ api.interceptors.response.use(
     }
 );
 
-export async function runReplicateMassgenerate(
-    model: string, 
-    prompt: string, 
-    outputFolder: string, 
-    loraScale: number,
-    aspectRatio: string,
-    outputFormat: string,
-    guidanceScale: number,
-    outputQuality: number,
-    signal?: AbortSignal
-) {
+interface ReplicateMassGenerateParams {
+    model: string;
+    outputFolder: string;
+    prompts: string[];
+    numImages: number;
+    onProgress?: (current: number) => void;
+    signal?: AbortSignal;
+    loraScale?: number;
+    aspectRatio?: string;
+    outputFormat?: string;
+    guidanceScale?: number;
+    outputQuality?: number;
+}
+
+export async function runReplicateMassgenerate(params: ReplicateMassGenerateParams) {
     try {
-        console.log('Starting API call with data:', {
-            model,
-            prompt,
-            outputFolder,
-            loraScale,
-            aspectRatio,
-            outputFormat,
-            guidanceScale,
-            outputQuality
-        });
+        console.log('Starting API call with data:', params);
 
         const controller = new AbortController();
-        if (signal) {
-            signal.addEventListener('abort', () => {
+        if (params.signal) {
+            params.signal.addEventListener('abort', () => {
                 controller.abort();
             });
         }
 
         const response = await api.post('/replicate_massgenerate', {
-            model,
-            prompt,
-            outputFolder,
-            loraScale,
-            aspectRatio,
-            outputFormat,
-            guidanceScale,
-            outputQuality
+            model: params.model,
+            prompts: params.prompts,
+            outputFolder: params.outputFolder,
+            numImages: params.numImages,
+            loraScale: params.loraScale ?? 0.75,
+            aspectRatio: params.aspectRatio ?? '1:1',
+            outputFormat: params.outputFormat ?? 'png',
+            guidanceScale: params.guidanceScale ?? 7.5,
+            outputQuality: params.outputQuality ?? 100
         }, {
             signal: controller.signal
         });
 
         if (!response.data) {
-            throw new Error('Keine Daten vom Server erhalten');
+            throw new Error('No data received from server');
         }
 
         console.log('API call successful, response:', response.data);
@@ -144,10 +140,10 @@ export async function runReplicateMassgenerate(
         console.error('API call failed:', error);
         if (axios.isAxiosError(error)) {
             if (!error.response) {
-                throw new Error('Verbindung zum Server verloren. Bitte überprüfen Sie die Serververbindung.');
+                throw new Error('Lost connection to server. Please check your server connection.');
             }
             if (error.response.status === 401) {
-                throw new Error('Replicate API Token nicht gefunden oder ungültig. Bitte überprüfen Sie Ihre Konfiguration.');
+                throw new Error('Replicate API Token not found or invalid. Please check your configuration.');
             }
         }
         throw error;

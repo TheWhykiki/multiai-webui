@@ -2,6 +2,7 @@
 /frontend/node_modules
 /frontend/.next
 /backend/.env
+/backend/venv
 
 # IDE
 .idea/
